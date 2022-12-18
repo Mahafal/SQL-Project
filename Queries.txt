@@ -1,0 +1,121 @@
+/* Query 1 - query used for first insight*/
+
+
+WITH rental_table as (
+  SELECT 
+    Ca.name, 
+    F.title, 
+    COUNT(*) OVER (partition by F.title) rental_count 
+  FROM
+    category ca 
+    JOIN film_category fc ON ca.category_id = fc.category_id 
+    JOIN film F ON F.film_id = fc.film_id 
+    JOIN Inventory inv ON F.film_id = inv.film_id 
+    JOIN Rental re ON re.inventory_id = inv.inventory_id 
+  WHERE 
+    ca.name = 'Animation' 
+    OR ca.name = 'Music' 
+    OR ca.name = 'Children' 
+    OR ca.name = 'Family' 
+    OR ca.name = 'Comedy' 
+    OR ca.name = 'Classics'
+) 
+SELECT
+  f.title, 
+  rental_table.name, 
+  rental_table.rental_count 
+FROM
+  rental_table 
+  join film f on f.title = rental_table.title 
+GROUP BY
+  1, 
+  2, 
+  3 
+ORDER BY 
+  2;
+
+
+/* Query 2 - query used for first insight*/
+
+SELECT
+  f.title film, 
+  ca.name  catogery, 
+  f.rental_duration as Rental_Duration , 
+  NTILE(4) OVER (
+    ORDER BY 
+      f.rental_duration
+  ) Stander_Quaiter 
+FROM
+  category ca 
+  JoIN film_category fc ON ca.category_id = fc.category_id 
+  JOIN film F ON F.film_id = fc.film_id 
+WHERE 
+  ca.name = 'Animation' 
+  OR ca.name = 'Music' 
+  OR ca.name = 'Children' 
+  OR ca.name = 'Family' 
+  OR ca.name = 'Comedy' 
+  OR ca.name = 'Classics'
+  GROUP BY
+  1,
+  2,
+  3;
+
+
+/* Query 3 - query used for first insight*/
+
+WITH TABLE_1 AS (
+  SELECT 
+    ca.name, 
+    f.rental_duration, 
+    NTILE(4) OVER (
+      ORDER BY 
+        f.rental_duration
+    ) SAS 
+  fROM 
+    category ca 
+    JOIN film_category fc ON ca.category_id = fc.category_id 
+    JOIN film F ON F.film_id = fc.film_id 
+  WHERE 
+    ca.name = 'Animation' 
+    OR ca.name = 'Music' 
+    OR ca.name = 'Children' 
+    OR ca.name = 'Family' 
+    OR ca.name = 'Comedy' 
+    OR ca.name = 'Classics'
+) 
+SELECT 
+  ca.name, 
+  TABLE_1.SAS stander_quaiter, 
+  COUNT(*) 
+FROM 
+  category ca 
+  JOIN TABLE_1 on ca.name = TABLE_1.name 
+GROUP BY 
+  1, 
+  2 
+ORDER BY
+  1;
+
+
+/* Query 4 - query used for first insight*/
+
+SELECT 
+  DATE_PART('month', rental_date) Rental_Month, 
+  DATE_PART('year', rental_date) Rental_Year, 
+  str.store_id, 
+  COUNT(str.store_id) 
+FROM 
+  rental re 
+  JOIN Staff sta on re.staff_id = sta.staff_id 
+  JOIN store str on sta.store_id = str.store_id 
+GROUP BY 
+  1, 
+  2, 
+  3;
+
+
+
+
+
+
